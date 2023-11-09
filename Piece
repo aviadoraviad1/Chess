@@ -1,0 +1,156 @@
+
+class Piece:
+    def __init__(self, position, color, white_location, black_location):
+        self.position = position
+        self.color = color
+        self.white_locations = white_location
+        self.black_locations = black_location
+        self.moves_list = []
+
+
+class Pawn(Piece):
+    def __init__(self, position, color, white_location, black_location):
+        Piece.__init__(self, position, color, white_location, black_location)
+
+    def check_pawn(self):
+        if self.color == 'white':
+            if (self.position[0], self.position[1] + 1) not in self.white_locations and \
+                    (self.position[0], self.position[1] + 1) not in self.black_locations and self.position[1] < 7:
+                self.moves_list.append((self.position[0], self.position[1] + 1))
+            if (self.position[0], self.position[1] + 2) not in self.white_locations and \
+                    (self.position[0], self.position[1] + 2) not in self.black_locations and self.position[1] == 1:
+                self.moves_list.append((self.position[0], self.position[1] + 2))
+            if (self.position[0] + 1, self.position[1] + 1) in self.black_locations:
+                self.moves_list.append((self.position[0] + 1, self.position[1] + 1))
+            if (self.position[0] - 1, self.position[1] + 1) in self.black_locations:
+                self.moves_list.append((self.position[0] - 1, self.position[1] + 1))
+        else:
+            if (self.position[0], self.position[1] - 1) not in self.white_locations and \
+                    (self.position[0], self.position[1] - 1) not in self.black_locations and self.position[1] > 0:
+                self.moves_list.append((self.position[0], self.position[1] - 1))
+            if (self.position[0], self.position[1] - 2) not in self.white_locations and \
+                    (self.position[0], self.position[1] - 2) not in self.black_locations and self.position[1] == 6:
+                self.moves_list.append((self.position[0], self.position[1] - 2))
+            if (self.position[0] + 1, self.position[1] - 1) in self.white_locations:
+                self.moves_list.append((self.position[0] + 1, self.position[1] - 1))
+            if (self.position[0] - 1, self.position[1] - 1) in self.white_locations:
+                self.moves_list.append((self.position[0] - 1, self.position[1] - 1))
+        return self.moves_list
+class Rook(Piece):
+    def __init__(self, position, color, white_location, black_location):
+        Piece.__init__(self, position, color, white_location, black_location)
+
+    def check_rook(self):
+        moves_list = []
+        if self.color == 'white':
+            enemies_list = self.black_locations
+            friends_list = self.white_locations
+        else:
+            friends_list = self.black_locations
+            enemies_list = self.white_locations
+        for i in range(4):
+            path = True
+            chain = 1
+            if i == 0:
+                x = 0
+                y = 1
+            elif i == 1:
+                x = 0
+                y = -1
+            elif i == 2:
+                x = 1
+                y = 0
+            else:
+                x = -1
+                y = 0
+            while path:
+                if (self.position[0] + (chain * x), self.position[1] + (chain * y)) not in friends_list and \
+                        0 <= self.position[0] + (chain * x) <= 7 and 0 <= self.position[1] + (chain * y) <= 7:
+                    moves_list.append((self.position[0] + (chain * x), self.position[1] + (chain * y)))
+                    if (self.position[0] + (chain * x), self.position[1] + (chain * y)) in enemies_list:
+                        path = False
+                    chain += 1
+                else:
+                    path = False
+        return moves_list
+class Bishop(Piece):
+    def __init__(self, position, color, white_location, black_location):
+        Piece.__init__(self, position, color, white_location, black_location)
+
+    def check_bishop(self):
+        if self.color == 'white':
+            enemies_list = self.black_locations
+            friends_list = self.white_locations
+        else:
+            friends_list = self.black_locations
+            enemies_list = self.white_locations
+        for i in range(4):  # up-right, up-left, down-right, down-left
+            path = True
+            chain = 1
+            if i == 0:
+                x = 1
+                y = -1
+            elif i == 1:
+                x = -1
+                y = -1
+            elif i == 2:
+                x = 1
+                y = 1
+            else:
+                x = -1
+                y = 1
+            while path:
+                if (self.position[0] + (chain * x), self.position[1] + (chain * y)) not in friends_list and \
+                        0 <= self.position[0] + (chain * x) <= 7 and 0 <= self.position[1] + (chain * y) <= 7:
+                    self.moves_list.append((self.position[0] + (chain * x), self.position[1] + (chain * y)))
+                    if (self.position[0] + (chain * x), self.position[1] + (chain * y)) in enemies_list:
+                        path = False
+                    chain += 1
+                else:
+                    path = False
+        return self.moves_list
+class Knight(Piece):
+    def __init__(self, position, color, white_location, black_location):
+        Piece.__init__(self, position, color, white_location, black_location)
+
+    def check_knight(self):
+        self.moves_list = []
+        if self.color == 'white':
+            enemies_list = self.black_locations
+            friends_list = self.white_locations
+        else:
+            friends_list = self.black_locations
+            enemies_list = self.white_locations
+        targets = [(1, 2), (1, -2), (2, 1), (2, -1), (-1, 2), (-1, -2), (-2, 1), (-2, -1)]
+        for i in range(8):
+            target = (self.position[0] + targets[i][0], self.position[1] + targets[i][1])
+            if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
+                self.moves_list.append(target)
+        return self.moves_list
+class King(Piece):
+    def __init__(self, position, color, white_location, black_location):
+        Piece.__init__(self, position, color, white_location, black_location)
+    def check_king(self):
+        if self.color == 'white':
+            enemies_list = self.black_locations
+            friends_list = self.white_locations
+        else:
+            friends_list = self.black_locations
+            enemies_list = self.white_locations
+        # 8 squares to check for kings, they can go one square any direction
+        targets = [(1, 0), (1, 1), (1, -1), (-1, 0), (-1, 1), (-1, -1), (0, 1), (0, -1)]
+        for i in range(8):
+            target = (self.position[0] + targets[i][0], self.position[1] + targets[i][1])
+            if target not in friends_list and 0 <= target[0] <= 7 and 0 <= target[1] <= 7:
+                self.moves_list.append(target)
+        return self.moves_list
+class Queen(Bishop, Rook):
+    def __init__(self, position, color, white_location, black_location):
+        Rook.__init__(self, position, color, white_location, black_location)
+        Bishop.__init__(self, position, color, white_location, black_location)
+    def check_queen(self):
+        self.moves_list = Bishop.check_bishop(self)
+        second_list = Rook.check_rook(self)
+        for i in range(len(second_list)):
+            self.moves_list.append(second_list[i])
+        return self.moves_list
